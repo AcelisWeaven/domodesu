@@ -2,6 +2,11 @@ export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
 
+  // URL base: https://nuxtjs.org/docs/2.x/deployment/github-pages#deploying-to-github-pages-for-repository
+  router: {
+    base: '/domodesu/'
+  },
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'domodesu',
