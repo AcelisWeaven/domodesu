@@ -20,7 +20,8 @@
     "@nuxtjs/axios": "^5.13.6",
     "core-js": "^3.15.1",
     "husky": "^7.0.1",
-    "nuxt": "^2.15.7"
+    "nuxt": "^2.15.7",
+    "nuxt-i18n": "^6.28.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.14.7",
