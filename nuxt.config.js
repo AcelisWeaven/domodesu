@@ -1,15 +1,19 @@
+const baseUrl = process.env.BASE_URL || 'http://localhost:3000/domodesu/'
+const twitchClientId = process.env.TWITCH_CLIENT_ID || 'your-twitch-client-id'
+
 export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
 
   env: {
-    baseUrl: process.env.BASE_URL || 'http://localhost:3000/domodesu/',
-    twitchClientId: process.env.TWITCH_CLIENT_ID || 'your-twitch-client-id',
+    baseUrl,
+    twitchClientId,
   },
 
   // URL base: https://nuxtjs.org/docs/2.x/deployment/github-pages#deploying-to-github-pages-for-repository
   router: {
     base: '/domodesu/',
+    middleware: ['auth'],
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
@@ -28,9 +32,7 @@ export default {
       {
         rel: 'icon',
         type: 'image/x-icon',
-        href: `${
-          process.env.BASE_URL || 'http://localhost:3000/domodesu/'
-        }favicon.ico`,
+        href: `${baseUrl}favicon.ico`,
       },
     ],
   },
@@ -60,10 +62,18 @@ export default {
     '@nuxtjs/axios',
     // https://i18n.nuxtjs.org
     'nuxt-i18n',
+    // https://auth.nuxtjs.org/
+    '@nuxtjs/auth-next',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {},
+  axios: {
+    headers: {
+      common: {
+        'Client-ID': twitchClientId,
+      },
+    },
+  },
 
   i18n: {
     locales: ['en', 'fr'],
@@ -73,11 +83,43 @@ export default {
       fallbackLocale: 'en',
       messages: {
         en: {
+          logout: 'Logout',
           welcome: 'Welcome',
+          welcome_login: 'Welcome, please login to use Domodesu',
         },
         fr: {
+          logout: 'Se déconnecter',
           welcome: 'Bienvenue',
+          welcome_login:
+            'Bienvenue, veuillez vous connecter pour utiliser Domodesu',
         },
+      },
+    },
+  },
+
+  auth: {
+    strategies: {
+      twitch: {
+        scheme: '~/schemes/twitchScheme',
+        endpoints: {
+          authorization: 'https://id.twitch.tv/oauth2/authorize',
+          token: 'https://id.twitch.tv/oauth2/validate',
+          userInfo: 'https://api.twitch.tv/helix/users',
+          logout: undefined,
+        },
+        token: {
+          property: 'access_token',
+          type: 'Bearer',
+          maxAge: 60 * 60 * 24 * 60,
+        },
+        responseType: 'token',
+        grantType: 'authorization_code',
+        accessType: undefined,
+        redirectUri: `${baseUrl}login`,
+        logoutRedirectUri: undefined,
+        clientId: twitchClientId,
+        scope: [],
+        state: 'UNIQUE_AND_NON_GUESSABLE',
       },
     },
   },

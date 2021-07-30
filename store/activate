@@ -1,0 +1,5 @@
+This file, since it exists, activates the Store.
+This is needed because Auth needs the Store.
+
+It can be removed safely when the Store is actually used.
+@see https://nuxtjs.org/docs/2.x/directory-structure/store#activate-the-store
