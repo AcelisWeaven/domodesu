@@ -2,6 +2,11 @@ export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
 
+  env: {
+    baseUrl: process.env.BASE_URL || 'http://localhost:3000/domodesu/',
+    twitchClientId: process.env.TWITCH_CLIENT_ID || 'your-twitch-client-id',
+  },
+
   // URL base: https://nuxtjs.org/docs/2.x/deployment/github-pages#deploying-to-github-pages-for-repository
   router: {
     base: '/domodesu/'
