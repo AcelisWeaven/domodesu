@@ -83,11 +83,13 @@ export default {
       fallbackLocale: 'en',
       messages: {
         en: {
+          connect_twitch: 'Connect with Twitch',
           logout: 'Logout',
           welcome: 'Welcome',
           welcome_login: 'Welcome, please login to use Domodesu',
         },
         fr: {
+          connect_twitch: 'Connexion avec Twitch',
           logout: 'Se déconnecter',
           welcome: 'Bienvenue',
           welcome_login:
@@ -105,7 +107,6 @@ export default {
           authorization: 'https://id.twitch.tv/oauth2/authorize',
           token: 'https://id.twitch.tv/oauth2/validate',
           userInfo: 'https://api.twitch.tv/helix/users',
-          logout: undefined,
         },
         token: {
           property: 'access_token',
@@ -114,14 +115,13 @@ export default {
         },
         responseType: 'token',
         grantType: 'authorization_code',
-        accessType: undefined,
         redirectUri: `${baseUrl}login`,
-        logoutRedirectUri: undefined,
         clientId: twitchClientId,
         scope: [],
         state: 'UNIQUE_AND_NON_GUESSABLE',
       },
     },
+    plugins: ['@/plugins/authLangRedirect'],
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build

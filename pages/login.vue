@@ -15,7 +15,7 @@
       "
       @click="login"
     >
-      Connect with Twitch
+      {{ $t('connect_twitch') }}
     </a>
   </div>
 </template>
@@ -24,6 +24,12 @@
 import Vue from 'vue'
 
 export default Vue.extend({
+  created() {
+    if (this.$auth.loggedIn) {
+      // redirect if already logged in
+      this.$router.push(`/${this.$i18n.locale}`)
+    }
+  },
   methods: {
     login() {
       this.$auth.loginWith('twitch')
