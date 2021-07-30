@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1 class="my-4">
+  <div class="my-8 mx-16">
+    <h1>
       {{ $t('welcome') }},
       <img
         class="h-8 w-8 inline rounded-full"
@@ -9,7 +9,7 @@
       />
       {{ $auth.user.name }}
     </h1>
-    <span
+    <button
       @click="$auth.logout()"
       class="
         bg-purple-500
@@ -22,8 +22,9 @@
         rounded
         cursor-pointer
       "
-      >{{ $t('logout') }}</span
     >
+      {{ $t('logout') }}
+    </button>
   </div>
 </template>
 

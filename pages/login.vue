@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <h1 class="my-4">{{ $t('welcome_login') }}</h1>
-    <a
+  <div class="my-8 mx-16">
+    <h1>{{ $t('welcome_login') }}</h1>
+    <button
       class="
         bg-purple-500
         hover:bg-purple-700
@@ -16,7 +16,7 @@
       @click="login"
     >
       {{ $t('connect_twitch') }}
-    </a>
+    </button>
   </div>
 </template>
 
