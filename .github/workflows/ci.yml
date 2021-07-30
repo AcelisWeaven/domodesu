@@ -19,6 +19,10 @@ jobs:
         os: [ubuntu-latest]
         node: [14]
 
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+
     steps:
       - name: Checkout 🛎
         uses: actions/checkout@master
