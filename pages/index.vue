@@ -1,8 +1,11 @@
 <template>
   <div>
     <h1>{{ $t('welcome') }}</h1>
-    <p v-if="accessToken">Access token: {{ accessToken }}</p>
-    <a :href="loginUrl">Connect with Twitch</a>
+    <div v-if="accessToken">
+      <p>Access token: {{ accessToken }}</p>
+      <strong v-if="username">Welcome, {{ username }}!</strong>
+    </div>
+    <a v-else :href="loginUrl">Connect with Twitch</a>
   </div>
 </template>
 
@@ -13,6 +16,7 @@ export default Vue.extend({
   data() {
     return {
       accessToken: null as string | null,
+      username: null as string | null,
     }
   },
 
@@ -21,6 +25,24 @@ export default Vue.extend({
       const parsedHash = new URLSearchParams(window.location.hash.substr(1))
       this.accessToken = parsedHash.get('access_token')
     }
+  },
+
+  watch: {
+    async accessToken() {
+      if (this.accessToken) {
+        const user = (
+          await this.$axios.$get('https://api.twitch.tv/helix/users', {
+            headers: {
+              'Content-type': 'application/json',
+              Authorization: `Bearer ${this.accessToken}`,
+              'Client-ID': <string>process.env.twitchClientId,
+            },
+          })
+        ).data[0]
+
+        this.username = user.display_name
+      }
+    },
   },
 
   computed: {
