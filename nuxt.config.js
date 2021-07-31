@@ -1,3 +1,5 @@
+import i18n from './config/i18n'
+
 const baseUrl = process.env.BASE_URL || 'http://localhost:3000/domodesu/'
 const twitchClientId = process.env.TWITCH_CLIENT_ID || 'your-twitch-client-id'
 
@@ -79,24 +81,7 @@ export default {
     locales: ['en', 'fr'],
     defaultLocale: 'en',
     detectBrowserLanguage: true,
-    vueI18n: {
-      fallbackLocale: 'en',
-      messages: {
-        en: {
-          connect_twitch: 'Connect with Twitch',
-          logout: 'Logout',
-          welcome: 'Welcome',
-          welcome_login: 'Welcome, please login to use Domodesu',
-        },
-        fr: {
-          connect_twitch: 'Connexion avec Twitch',
-          logout: 'Se déconnecter',
-          welcome: 'Bienvenue',
-          welcome_login:
-            'Bienvenue, veuillez vous connecter pour utiliser Domodesu',
-        },
-      },
-    },
+    vueI18n: i18n,
   },
 
   auth: {
