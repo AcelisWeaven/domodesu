@@ -15,7 +15,9 @@ module.exports = {
   ignorePatterns: ['.eslintrc.js'],
   plugins: [],
   // Add your custom rules here
-  rules: {},
+  rules: {
+    'no-param-reassign': 'off',
+  },
   settings: {
     // Needed because of 'airbnb-typescript', see above comment
     react: {

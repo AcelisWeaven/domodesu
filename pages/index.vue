@@ -1,7 +1,7 @@
 <template>
   <div class="my-8 mx-16">
     <h1>
-      {{ $t('welcome') }},
+      Welcome,
       <img
         class="h-8 w-8 inline rounded-full"
         :src="$auth.user.profilePicture"
@@ -23,7 +23,7 @@
         cursor-pointer
       "
     >
-      {{ $t('logout') }}
+      Logout
     </button>
   </div>
 </template>

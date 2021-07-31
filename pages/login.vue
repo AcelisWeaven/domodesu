@@ -18,7 +18,7 @@
     </client-only>
     <client-only>
       <div class="my-8 mx-16">
-        <h1>{{ $t('welcome_login') }}</h1>
+        <h1 class="text-xl">Welcome, please login to use Domodesu</h1>
         <button
           class="
             bg-purple-500
@@ -33,7 +33,7 @@
           "
           @click="login"
         >
-          {{ $t('connect_twitch') }}
+          Connect with Twitch
         </button>
       </div>
     </client-only>
@@ -47,7 +47,7 @@ export default Vue.extend({
   created() {
     if (this.$auth.loggedIn) {
       // redirect if already logged in
-      this.$router.push(`/${this.$i18n.locale}`)
+      this.$router.push('/')
     }
   },
   methods: {

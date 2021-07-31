@@ -11,19 +11,25 @@ export default class TwitchScheme extends Oauth2Scheme {
       return
     }
 
-    const response = await this.$auth.requestWith(this.name, {
-      url: 'https://api.twitch.tv/helix/users',
-      headers: {
-        'Content-type': 'application/json',
-        'Client-ID': <string>process.env.twitchClientId,
-      },
-    })
-    const user = response.data.data[0]
+    await this.$auth
+      .requestWith(this.name, {
+        url: 'https://api.twitch.tv/helix/users',
+        headers: {
+          'Content-type': 'application/json',
+          'Client-ID': <string>process.env.twitchClientId,
+        },
+      })
+      .then((response) => {
+        const user = response.data.data[0]
 
-    this.$auth.setUser({
-      login: user.login,
-      name: user.display_name,
-      profilePicture: user.profile_image_url,
-    })
+        this.$auth.setUser({
+          login: user.login,
+          name: user.display_name,
+          profilePicture: user.profile_image_url,
+        })
+      })
+      .catch((error) => {
+        this.$auth.callOnError(error, { method: 'fetchUser' })
+      })
   }
 }

@@ -1,5 +1,3 @@
-import i18n from './config/i18n'
-
 const baseUrl = process.env.BASE_URL || 'http://localhost:3000/domodesu/'
 const twitchClientId = process.env.TWITCH_CLIENT_ID || 'your-twitch-client-id'
 
@@ -64,8 +62,6 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
-    // https://i18n.nuxtjs.org
-    'nuxt-i18n',
     // https://auth.nuxtjs.org/
     '@nuxtjs/auth-next',
   ],
@@ -77,13 +73,6 @@ export default {
         'Client-ID': twitchClientId,
       },
     },
-  },
-
-  i18n: {
-    locales: ['en', 'fr'],
-    defaultLocale: 'en',
-    detectBrowserLanguage: true,
-    vueI18n: i18n,
   },
 
   auth: {
@@ -108,7 +97,6 @@ export default {
         state: 'UNIQUE_AND_NON_GUESSABLE',
       },
     },
-    plugins: ['@/plugins/authLangRedirect'],
   },
 
   fontawesome: {
