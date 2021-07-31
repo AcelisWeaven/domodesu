@@ -56,6 +56,8 @@ export default {
     '@nuxtjs/stylelint-module',
     // https://go.nuxtjs.dev/tailwindcss
     '@nuxtjs/tailwindcss',
+    // https://github.com/nuxt-community/fontawesome-module
+    '@nuxtjs/fontawesome',
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -107,6 +109,12 @@ export default {
       },
     },
     plugins: ['@/plugins/authLangRedirect'],
+  },
+
+  fontawesome: {
+    icons: {
+      solid: ['faCog'],
+    },
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
