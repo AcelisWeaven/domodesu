@@ -61,18 +61,22 @@ export default Vue.extend({
     }
   },
   created() {
-    this.refreshInterval = setInterval(() => {
+    if (process.server) return
+
+    // eslint-disable-next-line nuxt/no-globals-in-created
+    this.refreshInterval = window.setInterval(() => {
       this.refresh()
     }, 60 * 1000)
     this.refresh()
   },
   destroyed() {
-    if (this.refreshInterval !== null) clearInterval(this.refreshInterval)
+    if (this.refreshInterval !== null)
+      window.clearInterval(this.refreshInterval)
   },
   methods: {
     refresh() {
       const searchUrl = new URL('https://api.twitch.tv/helix/streams/followed')
-      searchUrl.searchParams.append('user_id', this.$auth.user.id)
+      searchUrl.searchParams.append('user_id', <string>this.$auth.user?.id)
       this.$axios.$get(searchUrl.href).then((response: any) => {
         this.followed = response.data
       })
