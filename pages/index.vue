@@ -1,6 +1,6 @@
 <template>
   <div class="my-8 mx-16">
-    <h1>
+    <h1 class="text-xl">
       Welcome,
       <img
         class="h-8 w-8 inline rounded-full"
@@ -25,6 +25,8 @@
     >
       Logout
     </button>
+
+    <select-followed />
   </div>
 </template>
 

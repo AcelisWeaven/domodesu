@@ -2,7 +2,7 @@ import { Oauth2Scheme } from '@nuxtjs/auth-next/dist/runtime'
 
 export default class TwitchScheme extends Oauth2Scheme {
   async fetchUser(): Promise<void> {
-    if (!this.check().valid) {
+    if (process.server || !this.check().valid) {
       return
     }
 
@@ -23,6 +23,7 @@ export default class TwitchScheme extends Oauth2Scheme {
         const user = response.data.data[0]
 
         this.$auth.setUser({
+          id: user.id,
           login: user.login,
           name: user.display_name,
           profilePicture: user.profile_image_url,

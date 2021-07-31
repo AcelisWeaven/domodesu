@@ -93,7 +93,7 @@ export default {
         grantType: 'authorization_code',
         redirectUri: `${baseUrl}login`,
         clientId: twitchClientId,
-        scope: [],
+        scope: ['user:read:follows'],
         state: 'UNIQUE_AND_NON_GUESSABLE',
       },
     },
