@@ -10,7 +10,7 @@
       {{ $auth.user.name }}
     </h1>
     <button
-      @click="$auth.logout()"
+      @click="$auth.logout() && $router.push('/login')"
       class="
         bg-purple-500
         hover:bg-purple-700
