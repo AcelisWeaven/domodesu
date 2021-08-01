@@ -166,7 +166,7 @@ export default Vue.extend({
       this.$axios
         .$get(followedStreamsUrl.href)
         .then((followedStreamsResponse: any) => {
-          this.followedStreams = followedStreamsResponse.data.map((s) => ({
+          this.followedStreams = followedStreamsResponse.data.map((s: any) => ({
             id: s.user_id,
             thumbnail: s.thumbnail_url
               .replace('{width}', '404')
@@ -189,10 +189,12 @@ export default Vue.extend({
               this.followedUsers = followedUsersResponse.data
                 // filter our users that are online (already handled before)
                 .filter(
-                  (u) =>
-                    !this.followedStreams.some((s) => s.user_name === u.to_name)
+                  (u: any) =>
+                    !this.followedStreams.some(
+                      (s) => s.displayName === u.to_name
+                    )
                 )
-                .map((u) => ({
+                .map((u: any) => ({
                   id: u.to_id,
                   isLive: false,
                   displayName: u.to_name,
@@ -215,7 +217,7 @@ export default Vue.extend({
       })
 
       this.$axios.$get(usersProfileUrl.href).then(({ data }: any) => {
-        data.forEach((user) => {
+        data.forEach((user: any) => {
           this.profilePictures.push({
             id: user.id,
             picture: user.profile_image_url,
@@ -223,7 +225,7 @@ export default Vue.extend({
         })
       })
     },
-    getUserPicture(id) {
+    getUserPicture(id: string) {
       return this.profilePictures.find((p) => p.id === id)?.picture
     },
   },
