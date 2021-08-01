@@ -29,25 +29,12 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Chat, Events, UserStateTags, EmoteTag } from 'twitch-js'
-
-interface MessagePart {
-  type: string
-}
-interface MessageTextPart extends MessagePart {
-  type: 'text'
-  message: string
-}
-interface MessageEmotePart extends MessagePart {
-  type: 'emote'
-  id: string
-}
-
-interface Message {
-  index: number
-  author: string
-  color: string
-  parts: MessagePart[]
-}
+import {
+  Message,
+  MessageEmotePart,
+  MessagePart,
+  MessageTextPart,
+} from '../types/message'
 
 // TODO: BetterTTV emotes integration @see https://gist.github.com/chuckxD/377211b3dd3e8ca8dc505500938555eb
 export default Vue.extend({
