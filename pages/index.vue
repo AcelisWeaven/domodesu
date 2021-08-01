@@ -1,5 +1,5 @@
 <template>
-  <div class="my-8 mx-16">
+  <div class="my-8 mx-16 lg:mx-16">
     <h1 class="text-xl">
       Welcome,
       <img

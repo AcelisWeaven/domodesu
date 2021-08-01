@@ -1,8 +1,17 @@
 <template>
-  <div class="my-8 mx-16">
+  <div>
     <div>Select a live channel</div>
-    <div class="grid gap-4 grid-cols-4">
-      <div
+    <div
+      class="
+        grid
+        gap-4
+        grid-cols-1
+        sm:grid-cols-2
+        md:grid-cols-3
+        lg:grid-cols-4
+      "
+    >
+      <nuxt-link
         class="
           flex flex-col
           items-center
@@ -13,6 +22,8 @@
           hover:opacity-80
         "
         v-for="channel in followed"
+        :key="channel.user_name"
+        :to="'/monitor?streamer=' + channel.user_name"
       >
         <img
           class="w-full"
@@ -42,7 +53,7 @@
           </span>
           <span class="text-xl font-semibold">{{ channel.user_name }}</span>
         </div>
-      </div>
+      </nuxt-link>
       <div v-if="followed.length === 0" class="font-light">
         Nobody's live right now. Check later!
       </div>
