@@ -4,25 +4,8 @@
       <span class="font-semibold">{{ streamer }}</span
       >'s chat
     </h1>
-    <ul>
-      <li v-for="message in messages" :key="message.index">
-        <span class="font-bold" :style="{ color: message.color }">
-          {{ message.author }}:
-        </span>
-        <span v-for="(part, partIndex) in message.parts" :key="partIndex">
-          <span v-if="part.type === 'text'">{{ part.message }}</span>
-          <img
-            class="inline"
-            v-if="part.type === 'emote'"
-            :src="
-              'https://static-cdn.jtvnw.net/emoticons/v2/' +
-              part.id +
-              '/default/light/1.0'
-            "
-          />
-        </span>
-      </li>
-    </ul>
+
+    <chat />
   </div>
 </template>
 
@@ -42,7 +25,6 @@ export default Vue.extend({
     return {
       streamer: null as string | null,
       chat: null as Chat | null,
-      messages: [] as Message[],
     }
   },
   created() {
@@ -90,17 +72,16 @@ export default Vue.extend({
       await this.chat?.join(`#${this.streamer}`)
 
       this.chat?.on(Events.PRIVATE_MESSAGE, (privateMessage) => {
-        const { message, tags } = privateMessage
-        const { emotes } = <UserStateTags>tags
-        this.messages = [
-          <Message>{
-            index: this.messages.length,
-            author: tags.displayName,
-            color: (<UserStateTags>tags).color,
-            parts: this.parseMessageEmotes(message, emotes),
-          },
-          ...this.messages,
-        ]
+        const text = privateMessage.message
+        const tags = <UserStateTags>privateMessage.tags
+        const { emotes } = tags
+        const message = <Message>{
+          id: tags.id,
+          author: tags.displayName,
+          color: tags.color,
+          parts: this.parseMessageEmotes(text, emotes),
+        }
+        this.$nuxt.$emit('message', message)
       })
     },
   },

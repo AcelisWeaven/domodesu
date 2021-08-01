@@ -13,7 +13,7 @@ export interface MessageEmotePart extends MessagePart {
 }
 
 export interface Message {
-  index: number
+  id: string
   author: string
   color: string
   parts: (MessageTextPart | MessageEmotePart)[]
