@@ -14,6 +14,8 @@
             part.id +
             '/default/light/1.0'
           "
+          width="28"
+          height="28"
         />
       </span>
     </li>
