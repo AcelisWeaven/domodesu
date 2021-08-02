@@ -209,13 +209,18 @@ export default Vue.extend({
         })
     },
     refreshProfilePictures() {
+      const profileIdsToFetch = [...this.followedStreams, ...this.followedUsers]
+        .map((f) => f.id)
+        // ignore already fetched profile pictures
+        .filter((id) => !this.profilePictures.some((p) => p.id === id))
+
+      // early return if there's nothing to fetch
+      if (profileIdsToFetch.length === 0) return
+
       this.api
         ?.get('users', {
           search: {
-            id: [...this.followedStreams, ...this.followedUsers]
-              .map((f) => f.id)
-              // ignore already fetched profile pictures
-              .filter((id) => !this.profilePictures.some((p) => p.id === id)),
+            id: profileIdsToFetch,
           },
         })
         .then(({ data }: any) => {
