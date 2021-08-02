@@ -118,6 +118,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import TwitchJs, { Api } from 'twitch-js'
 
 interface StreamerThumbnail {
   id: string
@@ -139,10 +140,18 @@ export default Vue.extend({
       followedUsers: [] as StreamerThumbnail[],
       refreshInterval: null as number | null,
       profilePictures: [] as ProfilePicture[],
+      api: null as Api | null,
     }
   },
   created() {
     if (process.server) return
+
+    const token = (<any>this.$auth.strategy).token.get().replace('Bearer ', '')
+    const twitchJs = new TwitchJs({
+      token,
+      clientId: process.env.twitchClientId,
+    })
+    this.api = twitchJs.api
 
     // eslint-disable-next-line nuxt/no-globals-in-created
     this.refreshInterval = window.setInterval(() => {
@@ -156,48 +165,42 @@ export default Vue.extend({
   },
   methods: {
     refresh() {
-      const followedStreamsUrl = new URL(
-        'https://api.twitch.tv/helix/streams/followed'
-      )
-      followedStreamsUrl.searchParams.append(
-        'user_id',
-        <string>this.$auth.user?.id
-      )
-      this.$axios
-        .$get(followedStreamsUrl.href)
+      this.api
+        ?.get('streams/followed', {
+          search: {
+            user_id: <string>this.$auth.user?.id,
+          },
+        })
         .then((followedStreamsResponse: any) => {
           this.followedStreams = followedStreamsResponse.data.map((s: any) => ({
-            id: s.user_id,
-            thumbnail: s.thumbnail_url
+            id: s.userId,
+            thumbnail: s.thumbnailUrl
               .replace('{width}', '404')
               .replace('{height}', '227'),
             isLive: true,
-            displayName: s.user_name,
-            viewerCount: s.viewer_count,
+            displayName: s.userName,
+            viewerCount: s.viewerCount,
           }))
 
-          const followedUsersUrl = new URL(
-            'https://api.twitch.tv/helix/users/follows'
-          )
-          followedUsersUrl.searchParams.append(
-            'from_id',
-            <string>this.$auth.user?.id
-          )
-          this.$axios
-            .$get(followedUsersUrl.href)
+          this.api
+            ?.get('users/follows', {
+              search: {
+                from_id: <string>this.$auth.user?.id,
+              },
+            })
             .then((followedUsersResponse: any) => {
               this.followedUsers = followedUsersResponse.data
                 // filter our users that are online (already handled before)
                 .filter(
                   (u: any) =>
                     !this.followedStreams.some(
-                      (s) => s.displayName === u.to_name
+                      (s) => s.displayName === u.toName
                     )
                 )
                 .map((u: any) => ({
-                  id: u.to_id,
+                  id: u.toId,
                   isLive: false,
-                  displayName: u.to_name,
+                  displayName: u.toName,
                   viewerCount: 0,
                 }))
 
@@ -206,24 +209,23 @@ export default Vue.extend({
         })
     },
     refreshProfilePictures() {
-      const profilesToFetch = [...this.followedStreams, ...this.followedUsers]
-        .map((f) => f.id)
-        // ignore already fetched profile pictures
-        .filter((id) => !this.profilePictures.some((p) => p.id === id))
-
-      const usersProfileUrl = new URL('https://api.twitch.tv/helix/users')
-      profilesToFetch.forEach((id) => {
-        usersProfileUrl.searchParams.append('id', id)
-      })
-
-      this.$axios.$get(usersProfileUrl.href).then(({ data }: any) => {
-        data.forEach((user: any) => {
-          this.profilePictures.push({
-            id: user.id,
-            picture: user.profile_image_url,
+      this.api
+        ?.get('users', {
+          search: {
+            id: [...this.followedStreams, ...this.followedUsers]
+              .map((f) => f.id)
+              // ignore already fetched profile pictures
+              .filter((id) => !this.profilePictures.some((p) => p.id === id)),
+          },
+        })
+        .then(({ data }: any) => {
+          data.forEach((user: any) => {
+            this.profilePictures.push({
+              id: user.id,
+              picture: user.profileImageUrl,
+            })
           })
         })
-      })
     },
     getUserPicture(id: string) {
       return this.profilePictures.find((p) => p.id === id)?.picture
