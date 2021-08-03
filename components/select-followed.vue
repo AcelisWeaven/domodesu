@@ -224,21 +224,20 @@ export default Vue.extend({
       if (this.isSyncing) return
 
       this.isSyncing = true
-      Promise.all([this.fetchFollowed(), this.fetchStreams()])
-        .then(([followedUsers, followedStreams]) => {
+      Promise.all([
+        this.fetchFollowed().then((followedUsers) => {
           this.followedUsers = followedUsers
-          this.followedStreams = followedStreams
           this.refreshProfilePictures()
-        })
-        .finally(() => {
-          this.isSyncing = false
-        })
+        }),
+        this.fetchStreams().then((followedStreams) => {
+          this.followedStreams = followedStreams
+        }),
+      ]).finally(() => {
+        this.isSyncing = false
+      })
     },
     refreshProfilePictures() {
-      const profileIdsToFetch = [
-        ...this.followedStreams,
-        ...this.filteredFollowedUsers,
-      ]
+      const profileIdsToFetch = this.followedUsers
         .map((f) => f.id)
         // ignore already fetched profile pictures
         .filter((id) => !this.profilePictures.some((p) => p.id === id))
