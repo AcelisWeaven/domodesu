@@ -1,7 +1,19 @@
 <template>
   <div>
     <div>
-      <div>Select a live channel</div>
+      <div class="text-center mb-4">
+        <div class="text-xl">Select a channel</div>
+        <div class="font-bold text-sm tracking-wider uppercase">
+          {{ followedStreams.length }} online
+          <button class="hover:text-purple-700" @click="refresh">
+            <font-awesome-icon
+              icon="sync-alt"
+              :class="{ 'fa-spin': isSyncing, 'text-purple-500': isSyncing }"
+            ></font-awesome-icon>
+          </button>
+          / {{ followedUsers.length }} offline
+        </div>
+      </div>
       <div
         class="
           grid
@@ -141,6 +153,7 @@ export default Vue.extend({
       refreshInterval: null as number | null,
       profilePictures: [] as ProfilePicture[],
       api: null as Api | null,
+      isSyncing: false,
     }
   },
   created() {
@@ -152,11 +165,6 @@ export default Vue.extend({
       clientId: process.env.twitchClientId,
     })
     this.api = twitchJs.api
-
-    // eslint-disable-next-line nuxt/no-globals-in-created
-    this.refreshInterval = window.setInterval(() => {
-      this.refresh()
-    }, 60 * 1000)
     this.refresh()
   },
   destroyed() {
@@ -165,6 +173,9 @@ export default Vue.extend({
   },
   methods: {
     refresh() {
+      if (this.isSyncing) return
+
+      this.isSyncing = true
       this.api
         ?.get('streams/followed', {
           search: {
@@ -206,6 +217,12 @@ export default Vue.extend({
 
               this.refreshProfilePictures()
             })
+            .finally(() => {
+              this.isSyncing = false
+            })
+        })
+        .catch(() => {
+          this.isSyncing = false
         })
     },
     refreshProfilePictures() {

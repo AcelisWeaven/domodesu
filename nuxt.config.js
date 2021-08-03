@@ -101,7 +101,7 @@ export default {
 
   fontawesome: {
     icons: {
-      solid: ['faCog'],
+      solid: ['faCog', 'faSyncAlt'],
     },
   },
 

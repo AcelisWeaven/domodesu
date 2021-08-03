@@ -4,6 +4,9 @@
       <span class="font-semibold">{{ streamer }}</span
       >'s chat
     </h1>
+    <a :href="'https://twitch.tv/' + streamer.toLowerCase()" target="_blank"
+      >View on Twitch</a
+    >
 
     <chat />
   </div>
