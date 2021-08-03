@@ -19,9 +19,9 @@
           grid
           gap-4
           grid-cols-1
-          sm:grid-cols-2
-          md:grid-cols-3
-          lg:grid-cols-4
+          sm:grid-cols-3
+          md:grid-cols-4
+          lg:grid-cols-5
         "
       >
         <nuxt-link
@@ -92,9 +92,10 @@
           grid
           gap-4
           grid-cols-1
-          md:grid-cols-2
-          lg:grid-cols-3
-          xl:grid-cols-4
+          sm:grid-cols-2
+          md:grid-cols-3
+          lg:grid-cols-4
+          xl:grid-cols-5
         "
       >
         <nuxt-link
@@ -169,7 +170,7 @@ export default Vue.extend({
     this.refresh()
   },
   methods: {
-    fetchFollowed(): Promise<StreamerThumbnail[]> {
+    fetchFollowed(cursor: string = ''): Promise<StreamerThumbnail[]> {
       if (this.hasFetchedFollowedUsers)
         return Promise.resolve(this.followedUsers)
       return new Promise((resolve, reject) => {
@@ -177,36 +178,45 @@ export default Vue.extend({
           ?.get('users/follows', {
             search: {
               from_id: <string>this.$auth.user?.id,
+              after: cursor,
             },
           })
-          .then((followedUsersResponse: any) => {
-            this.hasFetchedFollowedUsers = true
-            resolve(
-              followedUsersResponse.data.map(
-                (u: any) =>
-                  <StreamerThumbnail>{
-                    id: u.toId,
-                    isLive: false,
-                    displayName: u.toName,
-                    viewerCount: 0,
-                  }
-              )
+          .then(async (followedUsersResponse: any) => {
+            let followedUsers = followedUsersResponse.data.map(
+              (u: any) =>
+                <StreamerThumbnail>{
+                  id: u.toId,
+                  isLive: false,
+                  displayName: u.toName,
+                  viewerCount: 0,
+                }
             )
+            const nextCursor = followedUsersResponse.pagination.cursor
+            if (nextCursor) {
+              followedUsers = [
+                ...followedUsers,
+                ...(await this.fetchFollowed(nextCursor)),
+              ]
+            }
+
+            this.hasFetchedFollowedUsers = true
+            resolve(followedUsers)
           })
           .catch(reject)
       })
     },
-    fetchStreams(): Promise<StreamerThumbnail[]> {
+    fetchStreams(cursor: string = ''): Promise<StreamerThumbnail[]> {
       return new Promise((resolve, reject) => {
         this.api
           ?.get('streams/followed', {
             search: {
               user_id: <string>this.$auth.user?.id,
+              after: cursor,
             },
           })
-          .then((followedStreamsResponse: any) => {
-            resolve(
-              followedStreamsResponse.data.map((s: any) => ({
+          .then(async (followedStreamsResponse: any) => {
+            let followedStreams = followedStreamsResponse.data.map(
+              (s: any) => ({
                 id: s.userId,
                 thumbnail: s.thumbnailUrl
                   .replace('{width}', '404')
@@ -214,8 +224,17 @@ export default Vue.extend({
                 isLive: true,
                 displayName: s.userName,
                 viewerCount: s.viewerCount,
-              }))
+              })
             )
+
+            const nextCursor = followedStreamsResponse.pagination.cursor
+            if (nextCursor) {
+              followedStreams = [
+                ...followedStreams,
+                ...(await this.fetchStreams(nextCursor)),
+              ]
+            }
+            resolve(followedStreams)
           })
           .catch(reject)
       })
@@ -256,7 +275,7 @@ export default Vue.extend({
             data.forEach((user: any) => {
               this.profilePictures.push({
                 id: user.id,
-                picture: user.profileImageUrl,
+                picture: user.profileImageUrl.replace('300x300', '70x70'),
               })
             })
           })
