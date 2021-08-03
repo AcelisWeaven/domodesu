@@ -50,9 +50,6 @@ jobs:
 
       - name: Generate static website 📸
         run: yarn generate
-        env:
-          BASE_URL: ${{ secrets.BASE_URL }}
-          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.4
