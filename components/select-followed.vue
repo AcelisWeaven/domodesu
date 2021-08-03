@@ -11,7 +11,7 @@
               :class="{ 'fa-spin': isSyncing, 'text-purple-500': isSyncing }"
             ></font-awesome-icon>
           </button>
-          / {{ followedUsers.length }} offline
+          / {{ filteredFollowedUsers.length }} offline
         </div>
       </div>
       <div
@@ -107,7 +107,7 @@
             cursor-pointer
             hover:opacity-80
           "
-          v-for="streamer in followedUsers"
+          v-for="streamer in filteredFollowedUsers"
           :key="streamer.displayName"
           :to="'/monitor?streamer=' + streamer.displayName"
         >
@@ -150,6 +150,7 @@ export default Vue.extend({
     return {
       followedStreams: [] as StreamerThumbnail[],
       followedUsers: [] as StreamerThumbnail[],
+      hasFetchedFollowedUsers: false,
       refreshInterval: null as number | null,
       profilePictures: [] as ProfilePicture[],
       api: null as Api | null,
@@ -172,61 +173,75 @@ export default Vue.extend({
       window.clearInterval(this.refreshInterval)
   },
   methods: {
+    fetchFollowed(): Promise<StreamerThumbnail[]> {
+      if (this.hasFetchedFollowedUsers)
+        return Promise.resolve(this.followedUsers)
+      return new Promise((resolve, reject) => {
+        this.api
+          ?.get('users/follows', {
+            search: {
+              from_id: <string>this.$auth.user?.id,
+            },
+          })
+          .then((followedUsersResponse: any) => {
+            this.hasFetchedFollowedUsers = true
+            resolve(
+              followedUsersResponse.data.map(
+                (u: any) =>
+                  <StreamerThumbnail>{
+                    id: u.toId,
+                    isLive: false,
+                    displayName: u.toName,
+                    viewerCount: 0,
+                  }
+              )
+            )
+          })
+          .catch(reject)
+      })
+    },
+    fetchStreams(): Promise<StreamerThumbnail[]> {
+      return new Promise((resolve, reject) => {
+        this.api
+          ?.get('streams/followed', {
+            search: {
+              user_id: <string>this.$auth.user?.id,
+            },
+          })
+          .then((followedStreamsResponse: any) => {
+            resolve(
+              followedStreamsResponse.data.map((s: any) => ({
+                id: s.userId,
+                thumbnail: s.thumbnailUrl
+                  .replace('{width}', '404')
+                  .replace('{height}', '227'),
+                isLive: true,
+                displayName: s.userName,
+                viewerCount: s.viewerCount,
+              }))
+            )
+          })
+          .catch(reject)
+      })
+    },
     refresh() {
       if (this.isSyncing) return
 
       this.isSyncing = true
-      this.api
-        ?.get('streams/followed', {
-          search: {
-            user_id: <string>this.$auth.user?.id,
-          },
+      Promise.all([this.fetchFollowed(), this.fetchStreams()])
+        .then(([followedUsers, followedStreams]) => {
+          this.followedUsers = followedUsers
+          this.followedStreams = followedStreams
         })
-        .then((followedStreamsResponse: any) => {
-          this.followedStreams = followedStreamsResponse.data.map((s: any) => ({
-            id: s.userId,
-            thumbnail: s.thumbnailUrl
-              .replace('{width}', '404')
-              .replace('{height}', '227'),
-            isLive: true,
-            displayName: s.userName,
-            viewerCount: s.viewerCount,
-          }))
-
-          this.api
-            ?.get('users/follows', {
-              search: {
-                from_id: <string>this.$auth.user?.id,
-              },
-            })
-            .then((followedUsersResponse: any) => {
-              this.followedUsers = followedUsersResponse.data
-                // filter our users that are online (already handled before)
-                .filter(
-                  (u: any) =>
-                    !this.followedStreams.some(
-                      (s) => s.displayName === u.toName
-                    )
-                )
-                .map((u: any) => ({
-                  id: u.toId,
-                  isLive: false,
-                  displayName: u.toName,
-                  viewerCount: 0,
-                }))
-
-              this.refreshProfilePictures()
-            })
-            .finally(() => {
-              this.isSyncing = false
-            })
-        })
-        .catch(() => {
+        .finally(() => {
           this.isSyncing = false
         })
     },
     refreshProfilePictures() {
-      const profileIdsToFetch = [...this.followedStreams, ...this.followedUsers]
+      const profileIdsToFetch = [
+        ...this.followedStreams,
+        ...this.filteredFollowedUsers,
+      ]
         .map((f) => f.id)
         // ignore already fetched profile pictures
         .filter((id) => !this.profilePictures.some((p) => p.id === id))
@@ -251,6 +266,15 @@ export default Vue.extend({
     },
     getUserPicture(id: string) {
       return this.profilePictures.find((p) => p.id === id)?.picture
+    },
+  },
+  computed: {
+    filteredFollowedUsers(): StreamerThumbnail[] {
+      // filter out users that are online
+      return this.followedUsers.filter(
+        (u: any) =>
+          !this.followedStreams.some((s) => s.displayName === u.toName)
+      )
     },
   },
 })
