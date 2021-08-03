@@ -131,6 +131,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import TwitchJs, { Api } from 'twitch-js'
+import chunk from '../utils/chunk'
 
 interface StreamerThumbnail {
   id: string
@@ -232,6 +233,7 @@ export default Vue.extend({
         .then(([followedUsers, followedStreams]) => {
           this.followedUsers = followedUsers
           this.followedStreams = followedStreams
+          this.refreshProfilePictures()
         })
         .finally(() => {
           this.isSyncing = false
@@ -249,20 +251,22 @@ export default Vue.extend({
       // early return if there's nothing to fetch
       if (profileIdsToFetch.length === 0) return
 
-      this.api
-        ?.get('users', {
-          search: {
-            id: profileIdsToFetch,
-          },
-        })
-        .then(({ data }: any) => {
-          data.forEach((user: any) => {
-            this.profilePictures.push({
-              id: user.id,
-              picture: user.profileImageUrl,
+      chunk(profileIdsToFetch, 100).forEach((chunkProfilesIdsToFetch) => {
+        this.api
+          ?.get('users', {
+            search: {
+              id: chunkProfilesIdsToFetch,
+            },
+          })
+          .then(({ data }: any) => {
+            data.forEach((user: any) => {
+              this.profilePictures.push({
+                id: user.id,
+                picture: user.profileImageUrl,
+              })
             })
           })
-        })
+      })
     },
     getUserPicture(id: string) {
       return this.profilePictures.find((p) => p.id === id)?.picture
