@@ -152,7 +152,6 @@ export default Vue.extend({
       followedStreams: [] as StreamerThumbnail[],
       followedUsers: [] as StreamerThumbnail[],
       hasFetchedFollowedUsers: false,
-      refreshInterval: null as number | null,
       profilePictures: [] as ProfilePicture[],
       api: null as Api | null,
       isSyncing: false,
@@ -168,10 +167,6 @@ export default Vue.extend({
     })
     this.api = twitchJs.api
     this.refresh()
-  },
-  destroyed() {
-    if (this.refreshInterval !== null)
-      window.clearInterval(this.refreshInterval)
   },
   methods: {
     fetchFollowed(): Promise<StreamerThumbnail[]> {
