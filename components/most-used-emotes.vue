@@ -7,7 +7,7 @@
         v-for="emoteInfo in mostUsed"
         :key="emoteInfo.emote.source + '-' + emoteInfo.emote.id"
       >
-        <span class="emote-appear" :key="emoteInfo.count">
+        <span class="emote-appear" :key="emoteInfo.total">
           <emote-part :emote="emoteInfo.emote" size="2.0" />
         </span>
         x{{ emoteInfo.count }} ({{ emoteInfo.emote.text }})
@@ -49,6 +49,7 @@ interface EmoteStats {
 interface EmoteCount {
   emote: MessageEmotePart
   count: number
+  total: number
 }
 
 export default Vue.extend({
@@ -84,6 +85,7 @@ export default Vue.extend({
               count: this.emotes[key]?.occurrences.filter(
                 (o) => now - o < delay
               ).length,
+              total: this.emotes[key]?.occurrences.length,
             }
         )
         .filter((e) => e.count > 0)
