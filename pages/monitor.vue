@@ -1,14 +1,19 @@
 <template>
-  <div class="my-8 mx-16 lg:mx-16">
-    <h1 class="text-xl">
-      <span class="font-semibold">{{ streamer }}</span
-      >'s chat
-    </h1>
-    <a :href="'https://twitch.tv/' + streamer.toLowerCase()" target="_blank"
-      >View on Twitch</a
-    >
+  <div class="flex flex-col h-screen max-h-full pt-8 px-16 lg:px-16">
+    <div>
+      <h1 class="text-xl">
+        <span class="font-semibold">{{ streamer }}</span
+        >'s chat
+        <a
+          :href="'https://twitch.tv/' + streamer.toLowerCase()"
+          target="_blank"
+          class="text-sm text-purple-700"
+          >View on Twitch</a
+        >
+      </h1>
+    </div>
 
-    <chat />
+    <chat class="flex-grow" />
   </div>
 </template>
 

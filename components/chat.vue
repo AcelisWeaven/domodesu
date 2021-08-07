@@ -1,5 +1,11 @@
 <template>
-  <ul>
+  <ul
+    class="flex-grow max-h-full overflow-y-auto"
+    v-chat-scroll="{
+      always: false,
+      scrollonremoved: true,
+    }"
+  >
     <li v-for="message in messages" :key="message.id">
       <span class="font-bold" :style="{ color: message.color }">
         {{ message.author }}:
@@ -24,8 +30,11 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import VueChatScroll from 'vue-chat-scroll'
 import { Message } from '../types/message'
 
+Vue.use(VueChatScroll)
+const MaxMessagesCount = 100
 export default Vue.extend({
   data() {
     return {
@@ -34,7 +43,8 @@ export default Vue.extend({
   },
   created() {
     this.$nuxt.$on('message', (message: Message) => {
-      this.messages = [message, ...this.messages]
+      this.messages.push(message)
+      this.messages.splice(0, this.messages.length - MaxMessagesCount)
     })
   },
 })
