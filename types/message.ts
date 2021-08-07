@@ -10,6 +10,8 @@ export interface MessageTextPart extends MessagePart {
 export interface MessageEmotePart extends MessagePart {
   type: 'emote'
   id: string
+  source: 'twitch'
+  text: string
 }
 
 export interface Message {

@@ -1,6 +1,6 @@
 <template>
   <ul
-    class="flex-grow max-h-full overflow-y-auto"
+    class="overflow-y-auto"
     v-chat-scroll="{
       always: false,
       scrollonremoved: true,
@@ -12,17 +12,7 @@
       </span>
       <span v-for="(part, partIndex) in message.parts" :key="partIndex">
         <span v-if="part.type === 'text'">{{ part.message }}</span>
-        <img
-          class="inline"
-          v-if="part.type === 'emote'"
-          :src="
-            'https://static-cdn.jtvnw.net/emoticons/v2/' +
-            part.id +
-            '/default/light/1.0'
-          "
-          width="28"
-          height="28"
-        />
+        <emote-part v-if="part.type === 'emote'" :emote="part" />
       </span>
     </li>
   </ul>

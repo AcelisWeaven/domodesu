@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen max-h-full pt-8 px-16 lg:px-16">
+  <div class="flex flex-col h-screen max-h-screen py-8 px-16 lg:px-16">
     <div>
       <h1 class="text-xl">
         <span class="font-semibold">{{ streamer }}</span
@@ -12,8 +12,10 @@
         >
       </h1>
     </div>
-
-    <chat class="flex-grow" />
+    <div class="flex flex-auto min-h-0">
+      <most-used-emotes class="flex-auto"></most-used-emotes>
+      <chat class="w-1/3" />
+    </div>
   </div>
 </template>
 
@@ -68,7 +70,15 @@ export default Vue.extend({
       return this.applyEmotes(
         [
           <MessageTextPart>{ type: 'text', message: beforeString },
-          <MessageEmotePart>{ type: 'emote', id: emoteToApply.id },
+          <MessageEmotePart>{
+            type: 'emote',
+            id: emoteToApply.id,
+            source: 'twitch',
+            text: messageToSplit.message.substring(
+              emoteToApply.start,
+              emoteToApply.end + 1
+            ),
+          },
           <MessageTextPart>{ type: 'text', message: endString },
           ...parts,
         ],
