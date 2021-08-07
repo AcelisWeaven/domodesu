@@ -13,7 +13,7 @@
       </h1>
     </div>
     <div class="flex flex-auto min-h-0">
-      <most-used-emotes class="flex-auto"></most-used-emotes>
+      <most-used-emotes class="flex-auto w-2/3"></most-used-emotes>
       <chat class="w-1/3" />
     </div>
   </div>
@@ -22,14 +22,9 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Chat, Events, UserStateTags, EmoteTag } from 'twitch-js'
-import {
-  Message,
-  MessageEmotePart,
-  MessagePart,
-  MessageTextPart,
-} from '../types/message'
+import { Message, MessagePart, MessageTextPart } from '../types/message'
+import applyTwitchEmotes from '../utils/applyTwitchEmotes'
 
-// TODO: BetterTTV emotes integration @see https://gist.github.com/chuckxD/377211b3dd3e8ca8dc505500938555eb
 export default Vue.extend({
   data() {
     return {
@@ -46,44 +41,12 @@ export default Vue.extend({
     this.createWebsocket()
   },
   methods: {
-    parseMessageEmotes(message: string, emotes: EmoteTag[]) {
+    parseMessageEmotes(message: string, emotes: EmoteTag[]): MessagePart[] {
       emotes = emotes.sort((a, b) => b.start - a.start)
-      const parts = [<MessageTextPart>{ type: 'text', message }]
-      return this.applyEmotes(parts, emotes)
-    },
-    applyEmotes(parts: MessagePart[], emotes: EmoteTag[]): MessagePart[] {
-      if (emotes.length === 0) {
-        // processing is done, let's remove the empty text chunks
-        return parts.filter(
-          (part) =>
-            !(part.type === 'text' && (<MessageTextPart>part).message === '')
-        )
-      }
-
-      const emoteToApply = <EmoteTag>emotes.shift()
-      const messageToSplit = <MessageTextPart>parts.shift()
-      const beforeString = messageToSplit.message.substring(
-        0,
-        emoteToApply.start
-      )
-      const endString = messageToSplit.message.substring(emoteToApply.end + 1)
-      return this.applyEmotes(
-        [
-          <MessageTextPart>{ type: 'text', message: beforeString },
-          <MessageEmotePart>{
-            type: 'emote',
-            id: emoteToApply.id,
-            source: 'twitch',
-            text: messageToSplit.message.substring(
-              emoteToApply.start,
-              emoteToApply.end + 1
-            ),
-          },
-          <MessageTextPart>{ type: 'text', message: endString },
-          ...parts,
-        ],
-        emotes
-      )
+      let parts = [<MessageTextPart>{ type: 'text', message }] as MessagePart[]
+      parts = applyTwitchEmotes(parts, emotes)
+      // TODO: BetterTTV emotes integration @see https://gist.github.com/chuckxD/377211b3dd3e8ca8dc505500938555eb
+      return parts
     },
     async createWebsocket() {
       await this.chat?.connect()
