@@ -1,5 +1,5 @@
 <template>
-  <img class="inline object-contain" :style="sizes" :src="url" />
+  <img class="inline object-contain" :style="cssProps" :src="url" />
 </template>
 
 <script lang="ts">
@@ -15,11 +15,14 @@ export default Vue.extend({
     },
   },
   computed: {
-    sizes(): Record<string, string> {
-      return {
-        width: `${this.sizeInPx}px`,
+    cssProps(): Record<string, string> {
+      const props = {
         height: `${this.sizeInPx}px`,
       }
+      if (this.emote.source === 'twitch') {
+        props.width = `${this.sizeInPx}px`
+      }
+      return props
     },
     sizeInPx(): number {
       if (this.size === '1') return 28
