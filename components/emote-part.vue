@@ -1,14 +1,5 @@
 <template>
-  <img
-    class="inline object-contain"
-    :style="sizes"
-    :src="
-      'https://static-cdn.jtvnw.net/emoticons/v2/' +
-      emote.id +
-      '/default/light/' +
-      size
-    "
-  />
+  <img class="inline object-contain" :style="sizes" :src="url" />
 </template>
 
 <script lang="ts">
@@ -19,8 +10,8 @@ export default Vue.extend({
   props: {
     emote: Object as () => MessageEmotePart,
     size: {
-      type: String as () => '1.0' | '2.0' | '3.0',
-      default: '1.0',
+      type: String as () => '1' | '2' | '3',
+      default: '1',
     },
   },
   computed: {
@@ -31,9 +22,18 @@ export default Vue.extend({
       }
     },
     sizeInPx(): number {
-      if (this.size === '1.0') return 28
-      if (this.size === '2.0') return 56
+      if (this.size === '1') return 28
+      if (this.size === '2') return 56
       return 112
+    },
+    url(): string {
+      if (this.emote.source === 'twitch')
+        return `https://static-cdn.jtvnw.net/emoticons/v2/${this.emote.id}/default/light/${this.size}.0`
+      if (this.emote.source === 'ffz')
+        return `https://cdn.frankerfacez.com/emote/${this.emote.id}/${
+          this.size === '3' ? '4' : this.size
+        }`
+      return `https://cdn.betterttv.net/emote/${this.emote.id}/${this.size}x`
     },
   },
 })

@@ -8,7 +8,7 @@
         :key="emoteInfo.emote.source + '-' + emoteInfo.emote.id"
       >
         <span class="emote-appear" :key="emoteInfo.total">
-          <emote-part :emote="emoteInfo.emote" size="2.0" />
+          <emote-part :emote="emoteInfo.emote" size="2" />
         </span>
         x{{ emoteInfo.count }} ({{ emoteInfo.emote.text }})
       </span>

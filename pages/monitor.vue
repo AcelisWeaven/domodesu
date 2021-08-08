@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-col h-screen max-h-screen py-8 px-16 lg:px-16">
     <div>
-      <h1 class="text-xl">
-        <span class="font-semibold">{{ streamer }}</span
-        >'s chat
+      <h1 class="text-xl" v-if="streamer">
+        <span class="font-semibold">{{ streamer.displayName }}</span
+        >'s chat {{ streamer.id }}
         <a
-          :href="'https://twitch.tv/' + streamer.toLowerCase()"
+          :href="'https://twitch.tv/' + streamer.login"
           target="_blank"
           class="text-sm text-purple-700"
           >View on Twitch</a
@@ -21,36 +21,101 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { Chat, Events, UserStateTags, EmoteTag } from 'twitch-js'
+import TwitchJs, { Chat, Events, UserStateTags, EmoteTag } from 'twitch-js'
 import { Message, MessagePart, MessageTextPart } from '../types/message'
 import applyTwitchEmotes from '../utils/applyTwitchEmotes'
+import { TwitchUserProfile } from '../types/twitch'
+import applyBetterTTVEmotes from '../utils/applyBetterTTVEmotes'
+import { BetterTTVChannel, BetterTTVEmote } from '../types/betterTTV'
 
 export default Vue.extend({
   data() {
     return {
-      streamer: null as string | null,
+      streamer: null as TwitchUserProfile | null,
       chat: null as Chat | null,
+      betterTTVEmotes: [] as BetterTTVEmote[],
     }
   },
   created() {
-    this.streamer = <string | null>this.$route.query.streamer
+    const streamerLogin = <string | null>this.$route.query.streamer
 
-    if (!this.streamer) this.$router.push('/')
+    if (!streamerLogin) this.$router.push('/')
 
     this.chat = new Chat({})
-    this.createWebsocket()
+
+    const token = (<any>this.$auth.strategy).token.get().replace('Bearer ', '')
+    const twitchJs = new TwitchJs({
+      token,
+      clientId: process.env.twitchClientId,
+    })
+    twitchJs.api
+      .get('users', {
+        search: {
+          login: streamerLogin,
+        },
+      })
+      .then(({ data }: { data: TwitchUserProfile[] }) => {
+        ;[this.streamer] = data
+        this.createWebsocket()
+        this.fetchBetterTTVEmotes()
+      })
   },
   methods: {
-    parseMessageEmotes(message: string, emotes: EmoteTag[]): MessagePart[] {
-      emotes = emotes.sort((a, b) => b.start - a.start)
+    fetchBetterTTVEmotes() {
+      const globalBTTVEmotesPromise = this.$axios.$get(
+        'https://api.betterttv.net/3/cached/emotes/global'
+      ) as Promise<BetterTTVEmote[]>
+      const frankerfacezEmotesPromise = this.$axios.$get(
+        `https://api.betterttv.net/3/cached/frankerfacez/users/twitch/${this.streamer.id}`
+      ) as Promise<BetterTTVEmote[]>
+      const channelBTTVEmotesPromise = this.$axios.$get(
+        `https://api.betterttv.net/3/cached/users/twitch/${this.streamer.id}`
+      ) as Promise<BetterTTVChannel>
+      const setEmoteSource = (emotes: BetterTTVEmote[], source: string) =>
+        emotes.map((e) => ({ ...e, source }))
+
+      globalBTTVEmotesPromise.then((globalEmotes) => {
+        this.betterTTVEmotes = [
+          ...this.betterTTVEmotes,
+          ...setEmoteSource(globalEmotes, 'bttv'),
+        ]
+      })
+      frankerfacezEmotesPromise.then((frankerfacezEmotes) => {
+        this.betterTTVEmotes = [
+          ...this.betterTTVEmotes,
+          ...setEmoteSource(frankerfacezEmotes, 'ffz'),
+        ]
+      })
+      channelBTTVEmotesPromise.then((channelInfo) => {
+        this.betterTTVEmotes = [
+          ...this.betterTTVEmotes,
+          ...setEmoteSource(
+            [...channelInfo.sharedEmotes, ...channelInfo.channelEmotes],
+            'bttv'
+          ),
+        ]
+      })
+
+      // ignore errors silently (user may not use BTTV)
+      ;[
+        globalBTTVEmotesPromise,
+        frankerfacezEmotesPromise,
+        channelBTTVEmotesPromise,
+      ].forEach((p) => p.catch(() => {}))
+    },
+    parseMessageEmotes(
+      message: string,
+      twitchEmotes: EmoteTag[]
+    ): MessagePart[] {
+      twitchEmotes = twitchEmotes.sort((a, b) => b.start - a.start)
       let parts = [<MessageTextPart>{ type: 'text', message }] as MessagePart[]
-      parts = applyTwitchEmotes(parts, emotes)
-      // TODO: BetterTTV emotes integration @see https://gist.github.com/chuckxD/377211b3dd3e8ca8dc505500938555eb
+      parts = applyTwitchEmotes(parts, twitchEmotes)
+      parts = applyBetterTTVEmotes(parts, this.betterTTVEmotes)
       return parts
     },
     async createWebsocket() {
       await this.chat?.connect()
-      await this.chat?.join(`#${this.streamer}`)
+      await this.chat?.join(`#${this.streamer?.login}`)
 
       this.chat?.on(Events.PRIVATE_MESSAGE, (privateMessage) => {
         const text = privateMessage.message
