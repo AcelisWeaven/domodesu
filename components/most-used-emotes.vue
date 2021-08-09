@@ -3,14 +3,28 @@
     <p>Most used emotes in the past minute</p>
     <p>
       <span
-        class="inline-flex items-baseline mr-4"
+        class="inline-flex items-baseline mr-4 relative"
         v-for="emoteInfo in mostUsed"
         :key="emoteInfo.emote.source + '-' + emoteInfo.emote.id"
       >
         <span class="emote-appear" :key="emoteInfo.total">
           <emote-part :emote="emoteInfo.emote" size="2" />
         </span>
-        x{{ emoteInfo.count }} ({{ emoteInfo.emote.text }})
+        <span
+          class="
+            absolute
+            -bottom-1
+            -right-1
+            px-2
+            bg-blue-400
+            text-white
+            font-thin
+            text-sm
+            rounded-full
+          "
+        >
+          {{ emoteInfo.count }}
+        </span>
       </span>
     </p>
   </div>
@@ -90,7 +104,7 @@ export default Vue.extend({
         )
         .filter((e) => e.count > 0)
         .sort((a, b) => b.count - a.count)
-        .slice(0, 10)
+        .slice(0, 15)
     },
   },
 })

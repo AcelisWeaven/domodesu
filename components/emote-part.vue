@@ -1,5 +1,11 @@
 <template>
-  <img class="inline object-contain" :style="cssProps" :src="url" />
+  <img
+    class="inline object-contain"
+    :style="cssProps"
+    :src="url"
+    :alt="emote.text"
+    :title="emote.text"
+  />
 </template>
 
 <script lang="ts">
@@ -18,7 +24,7 @@ export default Vue.extend({
     cssProps(): Record<string, string> {
       const props = {
         height: `${this.sizeInPx}px`,
-      }
+      } as Record<string, string>
       if (this.emote.source === 'twitch') {
         props.width = `${this.sizeInPx}px`
       }

@@ -66,13 +66,15 @@ export default Vue.extend({
         'https://api.betterttv.net/3/cached/emotes/global'
       ) as Promise<BetterTTVEmote[]>
       const frankerfacezEmotesPromise = this.$axios.$get(
-        `https://api.betterttv.net/3/cached/frankerfacez/users/twitch/${this.streamer.id}`
+        `https://api.betterttv.net/3/cached/frankerfacez/users/twitch/${this.streamer?.id}`
       ) as Promise<BetterTTVEmote[]>
       const channelBTTVEmotesPromise = this.$axios.$get(
-        `https://api.betterttv.net/3/cached/users/twitch/${this.streamer.id}`
+        `https://api.betterttv.net/3/cached/users/twitch/${this.streamer?.id}`
       ) as Promise<BetterTTVChannel>
-      const setEmoteSource = (emotes: BetterTTVEmote[], source: string) =>
-        emotes.map((e) => ({ ...e, source }))
+      const setEmoteSource = (
+        emotes: BetterTTVEmote[],
+        source: 'bttv' | 'ffz'
+      ): BetterTTVEmote[] => emotes.map((e) => ({ ...e, source }))
 
       globalBTTVEmotesPromise.then((globalEmotes) => {
         this.betterTTVEmotes = [
