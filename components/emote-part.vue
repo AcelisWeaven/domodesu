@@ -24,6 +24,7 @@ export default Vue.extend({
     cssProps(): Record<string, string> {
       const props = {
         height: `${this.sizeInPx}px`,
+        'min-width': `${this.sizeInPx}px`,
       } as Record<string, string>
       if (this.emote.source === 'twitch') {
         props.width = `${this.sizeInPx}px`

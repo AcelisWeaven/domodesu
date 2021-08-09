@@ -3,7 +3,7 @@
     <div>
       <h1 class="text-xl" v-if="streamer">
         <span class="font-semibold">{{ streamer.displayName }}</span
-        >'s chat {{ streamer.id }}
+        >'s chat
         <a
           :href="'https://twitch.tv/' + streamer.login"
           target="_blank"
@@ -13,7 +13,10 @@
       </h1>
     </div>
     <div class="flex flex-auto min-h-0">
-      <most-used-emotes class="flex-auto w-2/3"></most-used-emotes>
+      <div class="w-2/3 flex flex-col flex-auto">
+        <most-used-emotes class="h-1/2"></most-used-emotes>
+        <subscriptions class="h-1/2"></subscriptions>
+      </div>
       <chat class="w-1/3" />
     </div>
   </div>
@@ -27,6 +30,11 @@ import applyTwitchEmotes from '../utils/applyTwitchEmotes'
 import { TwitchUserProfile } from '../types/twitch'
 import applyBetterTTVEmotes from '../utils/applyBetterTTVEmotes'
 import { BetterTTVChannel, BetterTTVEmote } from '../types/betterTTV'
+import {
+  Subscription,
+  SubscriptionGift,
+  SubscriptionGiftCommunity,
+} from '../types/subscription'
 
 export default Vue.extend({
   data() {
@@ -41,7 +49,11 @@ export default Vue.extend({
 
     if (!streamerLogin) this.$router.push('/')
 
-    this.chat = new Chat({})
+    this.chat = new Chat({
+      log: {
+        enabled: false,
+      },
+    })
 
     const token = (<any>this.$auth.strategy).token.get().replace('Bearer ', '')
     const twitchJs = new TwitchJs({
@@ -131,6 +143,26 @@ export default Vue.extend({
         }
         this.$nuxt.$emit('message', message)
       })
+      this.chat
+        ?.on(Events.SUBSCRIPTION, (userStateMessage: any) => {
+          this.$nuxt.$emit('subscription', <Subscription>{
+            user: userStateMessage.username,
+            months: parseInt(userStateMessage.parameters.cumulativeMonths, 10),
+          })
+        })
+        ?.on(Events.SUBSCRIPTION_GIFT, (userStateMessage: any) => {
+          this.$nuxt.$emit('subscriptionGift', <SubscriptionGift>{
+            from: userStateMessage.username,
+            to: userStateMessage.parameters.recipientUserName,
+            months: userStateMessage.parameters.months,
+          })
+        })
+        ?.on(Events.SUBSCRIPTION_GIFT_COMMUNITY, (userStateMessage: any) => {
+          this.$nuxt.$emit('subscriptionGift', <SubscriptionGiftCommunity>{
+            from: userStateMessage.username,
+            count: userStateMessage.parameters.massGiftCount,
+          })
+        })
     },
   },
   async destroyed() {
