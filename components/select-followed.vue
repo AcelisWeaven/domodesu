@@ -22,6 +22,51 @@
           sm:grid-cols-3
           md:grid-cols-4
           lg:grid-cols-5
+          my-8
+        "
+      >
+        <nuxt-link
+          class="
+            flex flex-row
+            items-center
+            rounded-lg
+            shadow-lg
+            overflow-hidden
+            cursor-pointer
+            hover:opacity-80
+          "
+          :to="'/monitor?streamer=' + self.name"
+        >
+          <img class="inline h-16 w-16" :src="self.profilePicture" />
+          <div class="my-2 mx-4">
+            <div class="text-xl font-semibold">
+              {{ self.name }}
+              <span
+                class="
+                  text-xs
+                  bg-gray-200
+                  text-gray-500
+                  px-3
+                  py-1
+                  rounded-md
+                  uppercase
+                  tracking-wider
+                "
+              >
+                you
+              </span>
+            </div>
+          </div>
+        </nuxt-link>
+      </div>
+      <div
+        class="
+          grid
+          gap-4
+          grid-cols-1
+          sm:grid-cols-3
+          md:grid-cols-4
+          lg:grid-cols-5
         "
       >
         <nuxt-link
@@ -292,6 +337,9 @@ export default Vue.extend({
         (u: any) =>
           !this.followedStreams.some((s) => s.displayName === u.toName)
       )
+    },
+    self() {
+      return this.$auth.user
     },
   },
 })
