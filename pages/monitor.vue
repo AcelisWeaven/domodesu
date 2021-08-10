@@ -7,9 +7,11 @@
         <a
           :href="'https://twitch.tv/' + streamer.login"
           target="_blank"
-          class="text-sm text-purple-700"
-          >View on Twitch</a
+          class="px-5 py-3 text-sm text-purple-700"
         >
+          View on Twitch
+          <font-awesome-icon :icon="['fab', 'twitch']"></font-awesome-icon>
+        </a>
       </h1>
     </div>
     <div class="flex flex-auto min-h-0">

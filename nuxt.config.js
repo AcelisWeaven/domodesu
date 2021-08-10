@@ -102,6 +102,7 @@ export default {
   fontawesome: {
     icons: {
       solid: ['faCog', 'faSyncAlt'],
+      brands: ['faTwitch'],
     },
   },
 
