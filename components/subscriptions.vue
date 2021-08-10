@@ -4,7 +4,7 @@
     <div>
       <div class="inline-flex" v-for="container in subscriptions">
         <span
-          class="border-2 border-blue-300 rounded-md px-3 py-1 mr-2"
+          class="border-2 border-blue-700 rounded-md px-3 py-1 mr-2 mb-1"
           v-if="container.type === 'subscription'"
         >
           <strong>{{ container.info.user }}</strong>
@@ -14,7 +14,7 @@
           </span>
         </span>
         <span
-          class="border-2 border-green-300 rounded-md px-3 py-1 mr-2"
+          class="border-2 border-pink-700 rounded-md px-3 py-1 mr-2 mb-1"
           v-if="container.type === 'subscriptionGift'"
         >
           🎁 <strong>{{ container.info.from }}</strong> →
@@ -25,13 +25,12 @@
           </span>
         </span>
         <span
-          class="border-2 border-purple-300 rounded-md px-3 py-1 mr-2"
+          class="border-2 border-purple-700 rounded-md px-3 py-1 mr-2 mb-1"
           v-if="container.type === 'subscriptionGiftCommunity'"
         >
           🎉 <strong>{{ container.info.from }}</strong> gifted
           {{ container.info.count }}
           {{ container.info.count > 1 ? 'subs' : 'sub' }}
-          to community
         </span>
       </div>
     </div>
@@ -55,6 +54,7 @@ export default Vue.extend({
   data() {
     return {
       subscriptions: [] as SubscriptionContainer[],
+      ignoreNextSubs: {} as Record<string, number>,
     }
   },
   created() {
@@ -71,6 +71,12 @@ export default Vue.extend({
         ]
       })
       .$on('subscriptionGift', (subscriptionGift: SubscriptionGift) => {
+        if (this.ignoreNextSubs[subscriptionGift.from] > 0) {
+          // this gift is part of a community gift, we can ignore the next subs
+          this.ignoreNextSubs[subscriptionGift.from] -= 1
+          return
+        }
+
         this.subscriptions = [
           {
             type: 'subscriptionGift',
@@ -82,6 +88,8 @@ export default Vue.extend({
       .$on(
         'subscriptionGiftCommunity',
         (subscriptionGiftCommunity: SubscriptionGiftCommunity) => {
+          this.ignoreNextSubs[subscriptionGiftCommunity.from] =
+            subscriptionGiftCommunity.count
           this.subscriptions = [
             {
               type: 'subscriptionGiftCommunity',

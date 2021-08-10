@@ -158,7 +158,9 @@ export default Vue.extend({
           })
         })
         ?.on(Events.SUBSCRIPTION_GIFT_COMMUNITY, (userStateMessage: any) => {
-          this.$nuxt.$emit('subscriptionGift', <SubscriptionGiftCommunity>{
+          this.$nuxt.$emit('subscriptionGiftCommunity', <
+            SubscriptionGiftCommunity
+          >{
             from: userStateMessage.username,
             count: userStateMessage.parameters.massGiftCount,
           })
