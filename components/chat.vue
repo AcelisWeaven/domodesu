@@ -1,6 +1,6 @@
 <template>
   <ul
-    class="overflow-y-auto"
+    class="overflow-y-auto overflow-x-hidden break-words"
     v-chat-scroll="{
       always: false,
       scrollonremoved: true,

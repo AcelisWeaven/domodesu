@@ -2,35 +2,58 @@
   <div>
     <p>Most used emotes in the past minute</p>
     <p>
-      <span
-        class="inline-flex items-baseline mr-4 relative"
-        v-for="emoteInfo in mostUsed"
-        :key="emoteInfo.emote.source + '-' + emoteInfo.emote.id"
-      >
-        <span class="emote-appear" :key="emoteInfo.total">
-          <emote-part :emote="emoteInfo.emote" size="2" />
-        </span>
+      <transition-group name="cell" tag="div" class="container">
         <span
-          class="
-            absolute
-            -bottom-1
-            -right-1
-            px-2
-            bg-blue-400
-            text-white
-            font-thin
-            text-sm
-            rounded-full
-          "
+          class="inline-flex items-baseline mr-4 relative"
+          v-for="emoteInfo in mostUsed"
+          :key="emoteInfo.emote.source + '_' + emoteInfo.emote.id"
         >
-          {{ emoteInfo.count }}
+          <span
+            class="emote-appear"
+            :key="
+              emoteInfo.emote.source +
+              '_' +
+              emoteInfo.emote.id +
+              '_emote_' +
+              emoteInfo.total
+            "
+          >
+            <emote-part :emote="emoteInfo.emote" size="2" />
+          </span>
+          <span
+            class="
+              absolute
+              -bottom-1
+              -right-1
+              px-2
+              bg-blue-400
+              text-white
+              font-thin
+              text-sm
+              rounded-full
+              counter-appear
+            "
+            :key="
+              emoteInfo.emote.source +
+              '_' +
+              emoteInfo.emote.id +
+              '_counter_' +
+              emoteInfo.total
+            "
+          >
+            {{ emoteInfo.count }}
+          </span>
         </span>
-      </span>
+      </transition-group>
     </p>
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.cell-move {
+  transition: transform 100ms;
+}
+
 .emote-appear {
   animation: emoteAppear 800ms cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -47,6 +70,18 @@
   }
   to {
     transform: scale(1) rotate(0deg);
+  }
+}
+.counter-appear {
+  animation: counterAppear 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes counterAppear {
+  from {
+    transform: scale(1.2);
+  }
+  to {
+    transform: scale(1);
   }
 }
 </style>

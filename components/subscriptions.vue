@@ -2,9 +2,13 @@
   <div>
     <p>Subscriptions</p>
     <div>
-      <div class="inline-flex" v-for="container in subscriptions">
+      <div
+        class="inline-flex"
+        v-for="(container, index) in subscriptions"
+        :key="index + '_' + container.type"
+      >
         <span
-          class="border-2 border-blue-700 rounded-md px-3 py-1 mr-2 mb-1"
+          class="border-2 border-blue-700 rounded-md px-3 py-1 mr-2 mb-2"
           v-if="container.type === 'subscription'"
         >
           <strong>{{ container.info.user }}</strong>
