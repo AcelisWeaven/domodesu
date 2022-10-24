@@ -19,7 +19,7 @@
   "dependencies": {
     "@nuxtjs/auth-next": "5.0.0-1624817847.21691f1",
     "@nuxtjs/axios": "^5.13.6",
-    "core-js": "^3.17.3",
+    "core-js": "^3.26.0",
     "nuxt": "^2.15.8",
     "twitch-js": "^2.0.0-beta.42",
     "vue": "^2.6.14",
